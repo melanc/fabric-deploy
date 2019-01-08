@@ -202,6 +202,8 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 
 11、创世区块通道tx生成时，x509问题，这个是之前旧证书混淆导致，删除历史的即可
 
+12、本节点的Peer配置需注意：- CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+
 还有一些设计或问题详细描述见：
 https://www.jianshu.com/p/baaa828577e6
 
