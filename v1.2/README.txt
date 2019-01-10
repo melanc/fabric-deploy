@@ -116,6 +116,7 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 		|- configtxgen -profile TwoOrgsChannel2 -outputAnchorPeersUpdate ./channel-artifacts/Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org2MSP 创建创世区块
 	
 	脚本运行后会生成根证书、msp证书、orderer证书、peer证书、tls证书等等和区块相关文件，即：channel-artifacts和crypto-config文件夹内容，可放在任何一个节点运行，生成后按照需要分发到不同的节点；
+	
 
 	/centos-113/e2e_cli/scripts/script.sh  通道创建命令、peer加入通道命令、链码安装、实例化、调用等等脚本，这个就是具体实践了；基本算是命令的集合，每个命令执行前都要先设置环境变量；看下函数：
 		|- createChannel 创建通道
@@ -191,8 +192,8 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 6、运行过程中，尝试看对应节点的日志
 	docker logs peerx.orgx.lychee.com
 
-7、铲掉重来，无法报错问题
-	因为最新的配置增加了数据持久化，所以需要每次
+7、script.sh报错问题，清理数据重来
+	因为最新的配置增加了数据持久化，所以需要每次清理数据
 	docker rm -f $(docker ps -a | grep fabric | awk '{print $1}') && rm -rf chainData && rm -rf base/chainData
 
 8、 BAD_REQUEST -- error authorizing update: error validating DeltaSet: invalid mod_policy for element [Policy] /Channel/Application/Writers: mod_policy not set
