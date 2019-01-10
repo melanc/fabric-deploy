@@ -192,6 +192,7 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 
 7、铲掉重来，无法报错问题
 	因为最新的配置增加了数据持久化，所以需要每次
+	docker rm -f $(docker ps -a | grep fabric | awk '{print $1}') && rm -rf chainData && rm -rf base/chainData
 
 8、 BAD_REQUEST -- error authorizing update: error validating DeltaSet: invalid mod_policy for element [Policy] /Channel/Application/Writers: mod_policy not set
 	铲掉重来可以解决，非常有可能是第一次搭建没有删除干净
