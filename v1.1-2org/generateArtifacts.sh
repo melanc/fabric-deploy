@@ -98,6 +98,6 @@ function generateChannelArtifacts() {
 }
 
 generateCerts
-replacePrivateKey
+#replacePrivateKey
 generateChannelArtifacts
 
