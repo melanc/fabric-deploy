@@ -40,15 +40,6 @@ setGlobals () {
                 else
                         CORE_PEER_ADDRESS=peer1.org1.lychee.com:7051
                 fi
-        else
-                CORE_PEER_LOCALMSPID="Org2MSP"
-                CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.lychee.com/peers/peer0.org2.lychee.com/tls/ca.crt
-                CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.lychee.com/users/Admin@org2.lychee.com/msp
-                if [ $1 -eq 2 ]; then
-                        CORE_PEER_ADDRESS=peer0.org2.lychee.com:7051
-                else
-                        CORE_PEER_ADDRESS=peer1.org2.lychee.com:7051
-                fi
         fi
 
         env |grep CORE
@@ -129,9 +120,9 @@ instantiateChaincode () {
         # while 'peer chaincode' command can get the orderer endpoint from the peer (if join was successful),
         # lets supply it directly as we know it using the "-o" option
         if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
-                peer chaincode instantiate -o orderer2.lychee.com:7050 -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "OR        ('Org1MSP.member','Org2MSP.member')" >&log.txt
+                peer chaincode instantiate -o orderer2.lychee.com:7050 -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "OR('Org1MSP.member')" >&log.txt
         else
-                peer chaincode instantiate -o orderer2.lychee.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "OR        ('Org1MSP.member','Org2MSP.member')" >&log.txt
+                peer chaincode instantiate -o orderer2.lychee.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a","100","b","200"]}' -P "OR('Org1MSP.member')" >&log.txt
         fi
         res=$?
         cat log.txt
@@ -198,12 +189,12 @@ joinChannel
 echo "Updating anchor peers for org1..."
 updateAnchorPeers 0
 
-## Install chaincode on Peer0/Org1 and Peer2/Org2
+## Install chaincode on Peer0/Org1
 echo "Installing chaincode on org1/peer0..."
 installChaincode 0
 
-#Instantiate chaincode on Peer2/Org2
-echo "Instantiating chaincode on org2/peer2..."
+#Instantiate chaincode on Peer0/Org1
+echo "Instantiating chaincode on org1/peer0..."
 instantiateChaincode 0
 
 #Query on chaincode on Peer0/Org1
