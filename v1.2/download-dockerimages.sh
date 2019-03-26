@@ -60,7 +60,7 @@ usage() {
       echo "EXAMPLE:"
       echo "./download-dockerimages.sh -c 1.2.1 -f 1.2.1 -t latest"
       echo
-      echo "By default, pulls fabric-ca and fabric 1.0.0-beta docker images"
+      echo "By default, pulls fabric-ca and fabric latest docker images"
       echo "from hyperledger dockerhub"
       exit 0
 }

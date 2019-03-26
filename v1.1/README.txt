@@ -37,35 +37,35 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 
 部署情况：
 
-10.0.200.111机器：
-	|-orderer1.lychee.com
+172.16.0.1机器(centos-1)：
 	|-ca0.org1.lychee.com
+	|-orderer1.lychee.com
 
-10.0.200.113机器：
-	|-orderer2.lychee.com
-	|-peer0.org1.lychee.com
+172.16.0.2机器(centos-2)：
 	|-z1   (zookeeper)
 	|-k1   (kafka)
+	|-orderer2.lychee.com
+	|-peer0.org1.lychee.com
 	|-couchdb0.org1.lychee.com
 
-10.0.200.114机器：
-	|-orderer3.lychee.com
-	|-peer1.org1.lychee.com
+172.16.0.3机器(centos-3)：
 	|-z2
 	|-k2
+	|-orderer3.lychee.com
+	|-peer1.org1.lychee.com
 	|-couchdb1.org1.lychee.com
 
-10.0.200.115机器：
-	|-peer0.org2.lychee.com
+172.16.0.4机器(centos-4)：
 	|-z3
 	|-k3
+	|-peer0.org2.lychee.com
 	|-couchdb0.org2.lychee.com
 
-10.0.200.116机器：
-	|-peer1.org2.lychee.com
-	|-k4
+172.16.0.5机器(centos-5)：
 	|-ca0.org2.lychee.com
+	|-peer1.org2.lychee.com
 	|-couchdb1.org2.lychee.com
+
 
 三、文件说明
 部署最终要的是要理解，不然每次遇到问题就会没有头绪。
@@ -74,7 +74,7 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 	区块链中一个比较重要的特性就是安全、防篡改，所以证书就必不可少；比较常见的证书创建工具是openssl，fabric有自己的一个证书生成工具：cryptogen；每个通道的创世区块是需要预先生成的，fabric提供的工具是configtxgen；
 	cryptogen 可以指定配置文件：crypto-config-3o4p.yaml，这个文件定义了有多少个orderer和组织，每个组织有多少个peer；
 	configtxgen 默认使用：configtx.yaml，这个文件描述了通道有多少个组织加入，以及排序服务属性、区块大小等等；
-	我们把这个配置放在了CentOs-111服务器上了，所以要去centos-111/e2e_cli文件夹中查看
+	我们把这个配置放在了centos-1服务器上了，所以要去centos-1/e2e_cli文件夹中查看
 
 2、docker容器相关文件
 	docker启动可以使用docker-compose，指定配置文件；配置文件中则包含了容器名称、环境变量、端口映射、文件夹映射、容器启动后的立即运行的命令等等；可参考：https://www.jianshu.com/p/00c5939a64af 查看每个字段的含义；要注意文件映射和cli服务的环境变量！
@@ -106,8 +106,8 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 3、帮助脚本类文件
 	此类文件就是IBM写的一些帮助脚本，脚本中包含了证书生成命令、创世区块生成命令、通道创建命令、peer加入通道命令、链码安装、实例化、调用等等脚本；这些命令都是可以单独拆分运行的，所以非常建议细读这些脚本命令！！
 	download-dockerimages.sh 这个脚本是拉取docker fabric相关镜像的用的，只是在最初部署的时候会用，这里没有用到；
-	generateArtifacts-3o4p.sh 这脚本是创建证书和通道创始区块用的，可携带一个通道名称参数：
-	./generateArtifacts-3o4p.sh yourchannel 其中yourchannel是通道名称；
+	generateArtifacts.sh 这脚本是创建证书和通道创始区块用的，可携带一个通道名称参数：
+	./generateArtifacts.sh yourchannel 其中yourchannel是通道名称；
 		|- cryptogen  generate --config=./crypto-config-3o4p.yaml 创建证书命令
 		|- configtxgen -profile TwoOrgsOrdererGenesis2 -outputBlock ./channel-artifacts/genesis.block 创建创世区块
 		|- configtxgen -profile TwoOrgsChannel2 -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID yourchannel 创建创世区块
@@ -116,7 +116,7 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 	
 	脚本运行后会生成根证书、msp证书、orderer证书、peer证书、tls证书等等和区块相关文件，即：channel-artifacts和crypto-config文件夹内容，可放在任何一个节点运行，生成后按照需要分发到不同的节点；
 
-	/centos-113/e2e_cli/scripts/script.sh  通道创建命令、peer加入通道命令、链码安装、实例化、调用等等脚本，这个就是具体实践了；基本算是命令的集合，每个命令执行前都要先设置环境变量；看下函数：
+	/centos-2/e2e_cli/scripts/script.sh  通道创建命令、peer加入通道命令、链码安装、实例化、调用等等脚本，这个就是具体实践了；基本算是命令的集合，每个命令执行前都要先设置环境变量；看下函数：
 		|- createChannel 创建通道
 		|- joinChannel 加入通道
 		|- updateAnchorPeers 0 更新锚点
@@ -168,8 +168,8 @@ peer节点状态数据库用的是couchdb，所以包括了4个couchdb节点；
 	分别在需要的机器上启动
 
 5、运行测试脚本
-   测试脚本的修改目前只修改了org1的peer0节点的脚步，即centos-113上的scripts中的文件；
-   进入centos-113节点：
+   测试脚本的修改目前只修改了org1的peer0节点的脚步，即centos-2上的scripts中的文件；
+   进入centos-2节点：
 	docker exec -it lycheecli bash 进入lycheecli客户端容器
 	./scripts/script.sh sunshine 运行测试脚本；
    出现============ All GOOD, End-2-End execution completed ============ 就大功告成；
