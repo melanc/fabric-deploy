@@ -1,0 +1,31 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+
+  orderer.uniledger.com:
+    extends:
+      file:   base/orderer-base.yaml
+      service: orderer-base
+    container_name: ${ORDERER_HOST_NAME}
+    hostname: ${ORDERER_HOST_NAME}
+    volumes:
+      # 数据固化，将orderer的数据映射到本地
+      - ${ORDERER_BLOCK}:/var/hyperledger/orderer/orderer.genesis.block
+      - ${ORDERER_DATA}:/var/hyperledger/production/
+      - ${ORDERER_MSP}:/var/hyperledger/orderer/msp
+      - ${ORDERER_TLS}:/var/hyperledger/orderer/tls
+    extra_hosts:
+      - z1:${Z1_ADDR}
+      - z2:${Z2_ADDR}
+      - z3:${Z3_ADDR}
+      - k1:${K1_ADDR}
+      - k2:${K2_ADDR}
+      - k3:${K3_ADDR}
+      - orderer1.uniledger.com:${ORDERER1_ADDR}
+      - orderer2.uniledger.com:${ORDERER2_ADDR}
+      - orderer3.uniledger.com:${ORDERER3_ADDR}

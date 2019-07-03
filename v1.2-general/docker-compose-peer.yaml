@@ -1,0 +1,58 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+
+  couchdb0.uniledger.com:
+    container_name: couchdb0.uniledger.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - "5984:5984"
+
+  peer0.org1.uniledger.com:
+    container_name: ${PEER_HOST_NAME}
+    hostname: ${PEER_HOST_NAME}
+    extends:
+      file:  base/peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.uniledger.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+      - CORE_PEER_ID=${PEER_ID}
+      - CORE_PEER_ADDRESS=${PEER_ADDRESS}
+      - CORE_PEER_CHAINCODELISTENADDRESS=${PEER_CHAINCODELISTENADDRESS}
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=${PEER_GOSSIP_EXTERNALENDPOINT}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=${PEER_GOSSIP_BOOTSTRAP}
+      - CORE_PEER_LOCALMSPID=${PEER_LOCALMSPID}
+    volumes:
+      - /var/run:/var/run/
+      # 数据固化，将peer的数据映射到本地，防止丢失
+      - ${PEER_DATA_DIR}:/var/hyperledger/production/
+      - ${PEER_MSP_DIR}:/etc/hyperledger/fabric/msp
+      - ${PEER_TLS_DIR}:/etc/hyperledger/fabric/tls
+    depends_on:
+      - couchdb0.uniledger.com
+    links:
+      - couchdb0.uniledger.com
+    ports:
+      - 7051:7051
+      - 7052:7052
+      - 7053:7053
+    extra_hosts:
+      - orderer1.uniledger.com:${ORDERER1_ADDR}
+      - orderer2.uniledger.com:${ORDERER2_ADDR}
+      - orderer3.uniledger.com:${ORDERER3_ADDR}
+      - peer0.org1.uniledger.com:${PEER0_ORG1_ADDR}
+      - peer0.org2.uniledger.com:${PEER0_ORG2_ADDR}
+      - peer0.org3.uniledger.com:${PEER0_ORG3_ADDR}
+
+
